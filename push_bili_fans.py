@@ -28,7 +28,7 @@ from matplotlib import font_manager
 BILI_UID = os.environ.get("BILI_UID", "13131424")
 ZECTRIX_MACS = [
     mac.strip()
-    for mac in os.environ.get("ZECTRIX_MACS", "AC:A7:04:EA:62:30").split(",")
+    for mac in os.environ.get("ZECTRIX_MACS", "").split(",")
     if mac.strip()
 ]
 ZECTRIX_API_KEY = os.environ.get("ZECTRIX_API_KEY", "")
@@ -139,6 +139,8 @@ def generate_follower_image(followers: int, output_path: Path) -> Path:
 def push_to_zectrix(image_path: Path) -> None:
     if not ZECTRIX_API_KEY:
         raise RuntimeError("Missing required environment variable: ZECTRIX_API_KEY")
+    if not ZECTRIX_MACS:
+        raise RuntimeError("Missing required environment variable: ZECTRIX_MACS")
 
     headers = {"X-API-Key": ZECTRIX_API_KEY}
     data = {"pageId": TARGET_PAGE, "dither": "true"}

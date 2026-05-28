@@ -1,71 +1,79 @@
-# Zectrix Bilibili Fans Display
+# Zectrix B 站粉丝数墨水屏推送
 
-Push a Bilibili follower count image to a Zectrix e-paper device.
+把 B 站粉丝数渲染成一张 `400x300` 的 JPG 图片，并推送到 Zectrix 墨水屏设备。这个项目主要用于 QNAP/NAS 定时任务。
 
-This project is designed for a QNAP/NAS scheduled task. It keeps the same stable upload behavior as the original working script:
+脚本保留了原始稳定脚本的上传方式：
 
-- `requests.post`
-- multipart field name: `images`
-- upload filename: `photo.jpg`
-- upload MIME type: `image/jpeg`
-- form fields: `pageId` and `dither`
+- 使用 `requests.post`
+- multipart 文件字段名为 `images`
+- 上传文件名固定为 `photo.jpg`
+- 上传 MIME 类型为 `image/jpeg`
+- 表单字段包含 `pageId` 和 `dither`
 
-## Features
+## 功能
 
-- Fetches follower count from Bilibili UID `13131424` by default.
-- Generates a `400x300` JPG for a PVC-framed display area.
-- Uses large `Arial Narrow Bold`-style digits when the font is available.
-- Pushes to one Zectrix device by default: `AC:A7:04:EA:62:30`.
-- Retries the Zectrix upload up to 3 times.
-- Keeps secrets out of source code.
+- 从 B 站公开接口获取指定 UID 的粉丝数。
+- 生成适合 PVC 牌子开窗区域的 `400x300` JPG 图片。
+- 画面仅保留大号粉丝数和右下角更新时间。
+- 如果同目录存在 `Arial Narrow Bold.ttf`，优先使用该字体。
+- 支持一个或多个 Zectrix 设备。
+- 推送失败时最多重试 3 次。
+- API Key 和设备 MAC 都通过环境变量配置，不写入源码。
 
-## Install
+## 安装依赖
 
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Optional: copy `Arial Narrow Bold.ttf` into the same folder as `push_bili_fans.py` if your NAS does not already have Arial Narrow installed.
+如果 NAS 上没有 Arial Narrow 字体，可以把 `Arial Narrow Bold.ttf` 放到 `push_bili_fans.py` 同目录。
 
-## Configure
+## 配置
 
-Set your Zectrix API key as an environment variable:
+至少需要设置下面两个环境变量：
 
 ```bash
 export ZECTRIX_API_KEY="your_zectrix_api_key_here"
+export ZECTRIX_MACS="AA:BB:CC:DD:EE:FF"
 ```
 
-Optional environment variables:
+其他可选配置：
 
 ```bash
 export BILI_UID="13131424"
-export ZECTRIX_MACS="AC:A7:04:EA:62:30"
 export TARGET_PAGE="1"
 export OUTPUT_DIR="/volume1/web/test"
 ```
 
-Multiple devices can be comma-separated:
+如果要推送多台设备，MAC 用英文逗号分隔：
 
 ```bash
-export ZECTRIX_MACS="AC:A7:04:EA:62:30,9C:13:9E:B5:79:C8"
+export ZECTRIX_MACS="AA:BB:CC:DD:EE:FF,11:22:33:44:55:66"
 ```
 
-## Run
+## 运行
 
 ```bash
 python3 push_bili_fans.py
 ```
 
-## QNAP Scheduled Task Example
-
-Use an absolute path for the script and export the API key before running it:
+## QNAP 定时任务示例
 
 ```bash
 cd /volume1/web/bili-fans
 export ZECTRIX_API_KEY="your_zectrix_api_key_here"
+export ZECTRIX_MACS="AA:BB:CC:DD:EE:FF"
+export BILI_UID="13131424"
 python3 push_bili_fans.py
 ```
 
-## Security
+## 安全说明
 
-Do not commit API keys, `.env` files, SSH private keys, generated images, or font files.
+不要提交以下内容到 GitHub：
+
+- Zectrix API Key
+- `.env` 文件
+- 真实设备 MAC
+- SSH 私钥
+- 生成的图片
+- 字体文件
