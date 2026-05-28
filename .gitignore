@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+out/
+*.jpg
+*.jpeg
+*.png
+*.ttf
+*.otf
+id_rsa*
+id_ed25519*
